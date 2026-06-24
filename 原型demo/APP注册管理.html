@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理 - 维他很忙ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom scrollbar for better look */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-slate-800 font-sans h-screen flex overflow-hidden">
+
+    <!-- 侧边栏 Sidebar -->
+    <aside id="sidebar" class="bg-slate-900 text-white transition-all duration-300 w-64 flex flex-col shadow-xl z-20">
+        <!-- Logo -->
+        <div class="h-16 flex items-center px-6 border-b border-slate-700 bg-slate-900 shrink-0">
+            <svg class="w-8 h-8 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+            </svg>
+            <span class="text-xl font-bold tracking-wider sidebar-text">VitaAdmin</span>
+        </div>
+
+        <!-- Menu -->
+        <nav class="flex-1 overflow-y-auto py-4">
+            <div class="px-4 mb-2 text-xs text-slate-500 uppercase font-semibold sidebar-text">运营管理</div>
+            <a href="#" class="flex items-center px-6 py-3 bg-blue-600 text-white border-r-4 border-blue-400 mb-1">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+                <span class="sidebar-text">用户账户管理</span>
+            </a>
+            <a href="#" class="flex items-center px-6 py-3 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors mb-1">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span class="sidebar-text">登录日志审计</span>
+            </a>
+             <a href="#" class="flex items-center px-6 py-3 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors mb-1">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+                <span class="sidebar-text">账号安全风控</span>
+            </a>
+        </nav>
+
+        <!-- Footer Toggle -->
+        <div class="p-4 border-t border-slate-700">
+            <button onclick="toggleSidebar()" class="w-full flex justify-center items-center py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors">
+                <svg id="collapseIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+                </svg>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col h-screen overflow-hidden bg-gray-50">
+        
+        <!-- Header -->
+        <header class="h-16 bg-white shadow-sm flex justify-between items-center px-6 shrink-0 z-10">
+            <div class="flex items-center">
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </span>
+                    <input type="text" placeholder="全局搜索用户/手机号..." class="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-64 bg-gray-50 focus:bg-white transition-all">
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <button class="relative p-2 text-gray-400 hover:text-blue-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                    <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                </button>
+                
+                <div class="relative group">
+                    <button class="flex items-center space-x-2 focus:outline-none">
+                        <img src="https://ui-avatars.com/api/?name=Admin&background=0284c7&color=fff" class="w-8 h-8 rounded-full border-2 border-white shadow-sm" alt="User">
+                        <span class="text-sm font-medium text-gray-700">System Admin</span>
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <!-- Dropdown -->
+                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 border border-gray-100 hidden group-hover:block org-focus-within:block">
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">个人设置</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">退出登录</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Body -->
+        <main class="flex-1 overflow-y-auto p-6" id="mainContent">
+            
+            <!-- Indicators -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <!-- Card 1 -->
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow">
+                    <div>
+                        <div class="text-gray-400 text-xs uppercase font-bold tracking-wider mb-1">总注册用户</div>
+                        <div class="text-3xl font-bold text-gray-800">1,024,567</div>
+                        <div class="text-green-500 text-xs font-medium mt-1 flex items-center">
+                            <span class="bg-green-100 px-1.5 py-0.5 rounded mr-1">↑ 12%</span>
+                            <span>较上月</span>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-blue-50 rounded-lg text-blue-600">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    </div>
+                </div>
+                 <!-- Card 2 -->
+                 <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow">
+                    <div>
+                        <div class="text-gray-400 text-xs uppercase font-bold tracking-wider mb-1">今日新增</div>
+                        <div class="text-3xl font-bold text-gray-800">3,421</div>
+                        <div class="text-green-500 text-xs font-medium mt-1 flex items-center">
+                            <span class="bg-green-100 px-1.5 py-0.5 rounded mr-1">↑ 5%</span>
+                            <span>较昨日</span>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-green-50 rounded-lg text-green-600">
+                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                    </div>
+                </div>
+                 <!-- Card 3 -->
+                 <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow">
+                    <div>
+                        <div class="text-gray-400 text-xs uppercase font-bold tracking-wider mb-1">当前在线</div>
+                        <div class="text-3xl font-bold text-gray-800">42,109</div>
+                        <div class="text-gray-500 text-xs font-medium mt-1">实时活跃用户</div>
+                    </div>
+                    <div class="p-3 bg-purple-50 rounded-lg text-purple-600">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </div>
+                </div>
+                 <!-- Card 4 -->
+                 <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow">
+                    <div>
+                         <div class="text-gray-400 text-xs uppercase font-bold tracking-wider mb-1">被锁定账号</div>
+                        <div class="text-3xl font-bold text-gray-800">156</div>
+                        <div class="text-red-500 text-xs font-medium mt-1">需关注风险</div>
+                    </div>
+                    <div class="p-3 bg-red-50 rounded-lg text-red-600">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters Section -->
+            <section class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-6">
+                <div class="flex flex-wrap gap-4 items-end">
+                    <div class="flex-1 min-w-[200px]">
+                        <label class="block text-xs font-medium text-gray-700 mb-1">用户搜索</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            </span>
+                            <input type="text" id="searchInput" placeholder="手机号/昵称/ID" class="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none">
+                        </div>
+                    </div>
+                    
+                    <div class="w-40">
+                        <label class="block text-xs font-medium text-gray-700 mb-1">账号状态</label>
+                        <select id="statusFilter" class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                            <option value="ALL">全部状态</option>
+                            <option value="REGISTERED">已注册 (正常)</option>
+                            <option value="LOGGED_IN">在线</option>
+                            <option value="LOCKED">已锁定</option>
+                            <option value="UNREGISTERED">未注册</option>
+                        </select>
+                    </div>
+
+                    <div class="w-40">
+                         <label class="block text-xs font-medium text-gray-700 mb-1">会员等级</label>
+                         <select id="levelFilter" class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                             <option value="ALL">全部等级</option>
+                             <option value="V1">V1 青铜</option>
+                             <option value="V2">V2 白银</option>
+                             <option value="V3">V3 黄金</option>
+                             <option value="V4">V4 钻石</option>
+                         </select>
+                     </div>
+
+                    <div class="w-48">
+                         <label class="block text-xs font-medium text-gray-700 mb-1">注册时间</label>
+                         <input type="date" class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-600">
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button onclick="handleFilter()" class="px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-100 transition-colors shadow-sm flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                            筛选
+                        </button>
+                        <button onclick="resetFilter()" class="px-5 py-2.5 bg-white text-gray-700 border border-gray-200 text-sm font-medium rounded-lg hover:bg-gray-50 focus:ring-4 focus:ring-gray-100 transition-colors">
+                            重置
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tools & Table -->
+            <section class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col min-h-[500px]">
+                
+                <!-- Toolbar -->
+                <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                    <div class="flex items-center space-x-2">
+                        <button onclick="toggleSelectAll()" class="px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded hover:bg-gray-50">
+                            全选
+                        </button>
+                        <button onclick="batchLock()" class="px-3 py-1.5 text-xs font-medium text-red-600 bg-white border border-red-200 rounded hover:bg-red-50 flex items-center">
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                            批量锁定
+                        </button>
+                        <button class="px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded hover:bg-gray-50 flex items-center">
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            导出数据
+                        </button>
+                    </div>
+                    <div class="text-xs text-gray-500">
+                        共找到 <span class="font-bold text-gray-800" id="totalCount">0</span> 条记录
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="flex-1 overflow-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-gray-50 text-gray-500 text-xs uppercase sticky top-0 z-10">
+                            <tr>
+                                <th class="p-4 w-10"><input type="checkbox" id="selectAllCheckbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"></th>
+                                <th class="p-4 font-semibold">用户ID/手机号</th>
+                                <th class="p-4 font-semibold">会员信息</th>
+                                <th class="p-4 font-semibold">注册来源</th>
+                                <th class="p-4 font-semibold">注册时间</th>
+                                <th class="p-4 font-semibold">状态</th>
+                                <th class="p-4 font-semibold">最后登录</th>
+                                <th class="p-4 font-semibold text-right">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="text-sm divide-y divide-gray-100">
+                            <!-- Rows will be injected here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="p-4 border-t border-gray-100 flex justify-between items-center bg-white">
+                    <div class="text-xs text-gray-500">
+                        显示第 <span class="font-medium">1</span> 到 <span class="font-medium">10</span> 条
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button class="px-3 py-1 border border-gray-200 rounded text-xs text-gray-500 hover:bg-gray-50 disabled:opacity-50">上一页</button>
+                        <button class="px-3 py-1 bg-blue-600 text-white rounded text-xs font-medium">1</button>
+                        <button class="px-3 py-1 border border-gray-200 rounded text-xs text-gray-600 hover:bg-gray-50">2</button>
+                        <button class="px-3 py-1 border border-gray-200 rounded text-xs text-gray-600 hover:bg-gray-50">3</button>
+                        <button class="px-3 py-1 border border-gray-200 rounded text-xs text-gray-600 hover:bg-gray-50 disabled:opacity-50">下一页</button>
+                    </div>
+                </div>
+
+                <!-- Loading State Overlay -->
+                <div id="loadingState" class="hidden absolute inset-0 bg-white/80 flex items-center justify-center z-20">
+                    <div class="flex flex-col items-center">
+                        <div class="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-2"></div>
+                        <span class="text-xs text-gray-500 font-medium">加载数据中...</span>
+                    </div>
+                </div>
+
+                 <!-- Empty State Overlay (Hidden by default) -->
+                 <div id="emptyState" class="hidden absolute inset-0 bg-white flex flex-col items-center justify-center z-10">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <h3 class="text-gray-900 font-medium mb-1">未找到相关数据</h3>
+                    <p class="text-gray-500 text-sm">请尝试调整筛选条件或搜索关键词</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Details Modal (Drawer style) -->
+    <div id="detailsModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity opacity-0" id="modalBackdrop"></div>
+        <div class="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white sm:max-w-md shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out" id="modalPanel">
+            <div class="flex h-full flex-col bg-white shadow-xl">
+                <!-- Header -->
+                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+                    <h2 class="text-lg font-semibold text-gray-900" id="modal-title">用户详情</h2>
+                    <button type="button" onclick="closeModal()" class="text-gray-400 hover:text-gray-500 focus:outline-none">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Body -->
+                <div class="flex-1 px-6 py-6 overflow-y-auto" id="modalContent">
+                    <!-- Dynamic content will be injected here -->
+                </div>
+
+                <!-- Footer -->
+                <div class="border-t border-gray-100 px-6 py-4 flex justify-end gap-3 bg-gray-50">
+                    <button type="button" onclick="closeModal()" class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">关闭</button>
+                    <button type="button" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 shadow-sm shadow-blue-200">编辑信息</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Component -->
+    <div id="toast" class="fixed top-4 right-4 z-50 transform transition-all duration-300 translate-y-[-150%] opacity-0">
+        <div class="flex items-center w-full max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800" role="alert">
+            <div id="toastIcon" class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-lg">
+                <!-- Icon injected -->
+            </div>
+            <div class="ml-3 text-sm font-normal" id="toastMessage">Default Message</div>
+            <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700" onclick="hideToast()">
+                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        /**
+         * Mock Data Generation
+         * Consistent with PRD: User, Member, Status, etc.
+         */
+        const statuses = [
+            { id: 'REGISTERED', label: '已注册', color: 'bg-green-100 text-green-700' },
+            { id: 'LOGGED_IN', label: '在线', color: 'bg-blue-100 text-blue-700' },
+            { id: 'LOCKED', label: '已锁定', color: 'bg-red-100 text-red-700' },
+            { id: 'UNREGISTERED', label: '未注册', color: 'bg-gray-100 text-gray-500' } // Should rarely appear in table
+        ];
+
+        const levels = ['V1 青铜', 'V2 白银', 'V3 黄金', 'V4 钻石'];
+        const sources = ['APP注册', '微信一键登录', '支付宝登录', '门店迁移'];
+
+        const users = Array.from({ length: 25 }, (_, i) => {
+            const id = 10000 + i;
+            const status = statuses[Math.floor(Math.random() * 3)]; // Randomly Registered, LoggedIn, Locked
+            return {
+                id: id,
+                phone: `138${String(Math.floor(Math.random() * 100000000)).padStart(8, '0')}`,
+                nickname: `User_${id}`,
+                memberLevel: levels[Math.floor(Math.random() * levels.length)],
+                source: sources[Math.floor(Math.random() * sources.length)],
+                registerTime: new Date(Date.now() - Math.floor(Math.random() * 10000000000)).toISOString().split('T')[0],
+                lastLoginTime: new Date(Date.now() - Math.floor(Math.random() * 100000000)).toLocaleString(),
+                status: status,
+                token: `eyJhbGciOiJIUzI1Ni...${id}`, // Mock Token
+                crmId: `CRM_${id}`
+            };
+        });
+
+        // State Management
+        let state = {
+            users: users,
+            filteredUsers: [...users],
+            selectedIds: new Set(),
+            isLoading: false,
+            sidebarOpen: true
+        };
+
+        // DOM Elements
+        const tableBody = document.getElementById('tableBody');
+        const loadingState = document.getElementById('loadingState');
+        const emptyState = document.getElementById('emptyState');
+        const totalCount = document.getElementById('totalCount');
+        
+        // --- Render Functions ---
+
+        function renderTable() {
+            tableBody.innerHTML = '';
+            
+            if (state.isLoading) {
+                loadingState.classList.remove('hidden');
+                emptyState.classList.add('hidden');
+                return;
+            }
+            loadingState.classList.add('hidden');
+
+            if (state.filteredUsers.length === 0) {
+                emptyState.classList.remove('hidden');
+                totalCount.textContent = 0;
+                return;
+            }
+            emptyState.classList.add('hidden');
+            totalCount.textContent = state.filteredUsers.length;
+
+            state.filteredUsers.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.className = `hover:bg-blue-50/50 transition-colors border-b border-gray-50 group ${state.selectedIds.has(user.id) ? 'bg-blue-50' : ''}`;
+                
+                tr.innerHTML = `
+                    <td class="p-4">
+                        <input type="checkbox" 
+                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer row-checkbox" 
+                            data-id="${user.id}"
+                            ${state.selectedIds.has(user.id) ? 'checked' : ''}
+                            onchange="window.toggleRowSelection(${user.id})"
+                        >
+                    </td>
+                    <td class="p-4">
+                        <div class="font-medium text-gray-900">${user.phone}</div>
+                        <div class="text-xs text-gray-400">ID: ${user.id}</div>
+                    </td>
+                    <td class="p-4">
+                        <div class="flex items-center">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 mr-2">
+                                ${user.memberLevel}
+                            </span>
+                            <span class="text-sm text-gray-600">${user.nickname}</span>
+                        </div>
+                         <div class="text-xs text-gray-400 mt-0.5">CRM ID: ${user.crmId}</div>
+                    </td>
+                    <td class="p-4">
+                         <span class="text-sm text-gray-600">${user.source}</span>
+                    </td>
+                    <td class="p-4 text-gray-500 text-sm">
+                        ${user.registerTime}
+                    </td>
+                    <td class="p-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.status.color}">
+                            <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-current opacity-60"></span>
+                            ${user.status.label}
+                        </span>
+                    </td>
+                    <td class="p-4 text-gray-500 text-sm font-mono text-xs">
+                        ${user.lastLoginTime}
+                    </td>
+                    <td class="p-4 text-right">
+                        <button onclick="window.viewDetails(${user.id})" class="text-blue-600 hover:text-blue-900 text-sm font-medium mr-3 hover:underline">详情</button>
+                        ${user.status.id === 'LOCKED' 
+                            ? `<button onclick="window.unlockUser(${user.id})" class="text-green-600 hover:text-green-900 text-sm font-medium hover:underline">解锁</button>`
+                            : `<button onclick="window.lockUser(${user.id})" class="text-red-500 hover:text-red-700 text-sm font-medium hover:underline">锁定</button>`
+                        }
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        // --- Event Handlers & Exports ---
+
+        window.handleFilter = () => {
+            state.isLoading = true;
+            renderTable(); // Show loading
+
+            // Simulate API delay
+            setTimeout(() => {
+                const search = document.getElementById('searchInput').value.toLowerCase();
+                const status = document.getElementById('statusFilter').value;
+                const level = document.getElementById('levelFilter').value;
+
+                state.filteredUsers = state.users.filter(user => {
+                    const matchSearch = user.phone.includes(search) || user.nickname.toLowerCase().includes(search) || String(user.id).includes(search);
+                    const matchStatus = status === 'ALL' || user.status.id === status;
+                    const matchLevel = level === 'ALL' || user.memberLevel === level; // Simple exact match for demo
+                    return matchSearch && matchStatus && matchLevel;
+                });
+                
+                state.isLoading = false;
+                renderTable();
+                showToast('筛选完成', 'success');
+            }, 600);
+        };
+
+        window.resetFilter = () => {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = 'ALL';
+            document.getElementById('levelFilter').value = 'ALL';
+            window.handleFilter();
+        };
+
+        window.toggleRowSelection = (id) => {
+            if (state.selectedIds.has(id)) {
+                state.selectedIds.delete(id);
+            } else {
+                state.selectedIds.add(id);
+            }
+            renderTable(); // Re-render to update checkbox and row styles
+        };
+
+        window.toggleSelectAll = () => {
+            const allSelected = state.selectedIds.size === state.filteredUsers.length && state.filteredUsers.length > 0;
+            state.selectedIds.clear();
+            if (!allSelected) {
+                state.filteredUsers.forEach(u => state.selectedIds.add(u.id));
+            }
+            // Update master checkbox
+            document.getElementById('selectAllCheckbox').checked = !allSelected;
+            renderTable();
+        };
+
+        window.batchLock = () => {
+             if (state.selectedIds.size === 0) {
+                showToast('请先选择用户', 'error');
+                return;
+            }
+            if(!confirm(`确认批量锁定选中的 ${state.selectedIds.size} 个账户吗？`)) return;
+
+            // Logic to update state
+            state.users = state.users.map(u => {
+                if(state.selectedIds.has(u.id)) {
+                    return {...u, status: statuses.find(s=>s.id === 'LOCKED')};
+                }
+                return u;
+            });
+            state.selectedIds.clear();
+            document.getElementById('selectAllCheckbox').checked = false;
+            window.handleFilter(); // Re-filter to show updates
+            showToast('批量锁定成功', 'success');
+        };
+
+        window.lockUser = (id) => {
+            if(!confirm('该账号将无法登录，确认锁定？')) return;
+            const idx = state.users.findIndex(u => u.id === id);
+            if (idx > -1) {
+                state.users[idx].status = statuses.find(s => s.id === 'LOCKED');
+                window.handleFilter();
+                showToast(`用户 ${state.users[idx].phone} 已锁定`, 'warning');
+            }
+        };
+
+        window.unlockUser = (id) => {
+            const idx = state.users.findIndex(u => u.id === id);
+            if (idx > -1) {
+                state.users[idx].status = statuses.find(s => s.id === 'REGISTERED');
+                window.handleFilter();
+                showToast(`用户 ${state.users[idx].phone} 已解锁`, 'success');
+            }
+        };
+
+        window.viewDetails = (id) => {
+            const user = state.users.find(u => u.id === id);
+            if (!user) return;
+
+            const modalPanel = document.getElementById('modalPanel');
+            const modalBackdrop = document.getElementById('modalBackdrop');
+            const modal = document.getElementById('detailsModal');
+            const content = document.getElementById('modalContent');
+            
+            // Build Detail Info
+            content.innerHTML = `
+                <div class="space-y-6">
+                    <!-- Basic Info -->
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 mb-3">基本信息</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <div class="text-xs text-gray-400">UID</div>
+                                <div class="font-mono text-sm">${user.id}</div>
+                            </div>
+                             <div class="bg-gray-50 p-3 rounded-lg">
+                                <div class="text-xs text-gray-400">手机号</div>
+                                <div class="font-mono text-sm">${user.phone}</div>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <div class="text-xs text-gray-400">昵称</div>
+                                <div class="text-sm">${user.nickname}</div>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <div class="text-xs text-gray-400">会员信息</div>
+                                <div class="text-sm text-purple-700 font-medium">${user.memberLevel}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <div>
+                         <h3 class="text-sm font-medium text-gray-500 mb-3">账号状态</h3>
+                         <div class="flex items-center p-4 border border-gray-100 rounded-lg">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.status.color} mr-3">
+                                ${user.status.label}
+                            </span>
+                            <span class="text-xs text-gray-400 flex-1">
+                                上次登录：${user.lastLoginTime}
+                            </span>
+                         </div>
+                    </div>
+
+                    <!-- System Info -->
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 mb-3">系统集成数据</h3>
+                        <div class="space-y-3">
+                             <div class="flex justify-between text-sm py-2 border-b border-gray-50">
+                                <span class="text-gray-600">Register Source</span>
+                                <span class="text-gray-900">${user.source}</span>
+                            </div>
+                             <div class="flex justify-between text-sm py-2 border-b border-gray-50">
+                                <span class="text-gray-600">Register Time</span>
+                                <span class="text-gray-900 table-nums">${user.registerTime}</span>
+                            </div>
+                             <div class="flex justify-between text-sm py-2 border-b border-gray-50">
+                                <span class="text-gray-600">CRM Identifier</span>
+                                <span class="font-mono text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">${user.crmId}</span>
+                            </div>
+                             <div class="flex justify-between text-sm py-2 border-b border-gray-50">
+                                <span class="text-gray-600">Current Token</span>
+                                <span class="font-mono text-xs text-gray-400 truncate w-32" title="${user.token}">${user.token}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+            // Animate In
+            setTimeout(() => {
+                modalBackdrop.classList.remove('opacity-0');
+                modalPanel.classList.remove('translate-x-full');
+            }, 10);
+        };
+
+        window.closeModal = () => {
+             const modalPanel = document.getElementById('modalPanel');
+            const modalBackdrop = document.getElementById('modalBackdrop');
+            const modal = document.getElementById('detailsModal');
+
+            modalBackdrop.classList.add('opacity-0');
+            modalPanel.classList.add('translate-x-full');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        };
+
+        window.toggleSidebar = () => {
+            const sb = document.getElementById('sidebar');
+            const texts = document.querySelectorAll('.sidebar-text');
+            const icon = document.getElementById('collapseIcon');
+            
+            state.sidebarOpen = !state.sidebarOpen;
+            
+            if (state.sidebarOpen) {
+                sb.classList.remove('w-20');
+                sb.classList.add('w-64');
+                texts.forEach(t => t.classList.remove('hidden'));
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>'; // Double left arrow
+            } else {
+                sb.classList.remove('w-64');
+                sb.classList.add('w-20');
+                texts.forEach(t => t.classList.add('hidden'));
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>'; // Double right arrow
+            }
+        };
+
+        // --- Toast Utils ---
+
+        window.showToast = (message, type = 'success') => {
+            const toast = document.getElementById('toast');
+            const msg = document.getElementById('toastMessage');
+            const icon = document.getElementById('toastIcon');
+            
+            msg.textContent = message;
+            
+            if (type === 'success') {
+                icon.className = 'inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200';
+                icon.innerHTML = '<svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20"><path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/></svg>';
+            } else if (type === 'error') {
+                 icon.className = 'inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-red-500 bg-red-100 rounded-lg dark:bg-red-800 dark:text-red-200';
+                 icon.innerHTML = '<svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20"><path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 11.793a1 1 0 1 1-1.414 1.414L10 11.414l-2.293 2.293a1 1 0 0 1-1.414-1.414L8.586 10 6.293 7.707a1 1 0 0 1 1.414-1.414L10 8.586l2.293-2.293a1 1 0 0 1 1.414 1.414L11.414 10l2.293 2.293Z"/></svg>';
+            } else if (type === 'warning') {
+                 icon.className = 'inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-orange-500 bg-orange-100 rounded-lg';
+                 icon.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>';
+            }
+
+            toast.classList.remove('translate-y-[-150%]', 'opacity-0');
+            setTimeout(() => window.hideToast(), 3000);
+        };
+
+        window.hideToast = () => {
+             const toast = document.getElementById('toast');
+             toast.classList.add('translate-y-[-150%]', 'opacity-0');
+        };
+
+        // Esc key to close modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // Initialize
+        renderTable();
+
+    </script>
+</body>
+</html>

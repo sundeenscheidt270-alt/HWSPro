@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>采购订单管理 - 维他很忙ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-gray-50 text-slate-800 font-sans h-screen flex overflow-hidden">
+
+    <!-- 侧边栏 -->
+    <aside id="sidebar" class="bg-slate-900 text-white transition-all duration-300 w-64 flex flex-col shadow-xl z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-700 shrink-0">
+            <svg class="w-8 h-8 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            <span class="text-xl font-bold sidebar-text">采购管理</span>
+        </div>
+        
+        <nav class="flex-1 overflow-y-auto py-4">
+            <div class="px-4 mb-2 text-xs text-slate-500 uppercase font-semibold sidebar-text">采购模块</div>
+            <a href="#" class="flex items-center px-6 py-3 bg-blue-600 text-white border-r-4 border-blue-400 mb-1">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <span class="sidebar-text">采购订单</span>
+            </a>
+            <a href="#" class="flex items-center px-6 py-3 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors mb-1">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+                <span class="sidebar-text">收货管理</span>
+            </a>
+            <a href="#" class="flex items-center px-6 py-3 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors mb-1">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="sidebar-text">差异处理</span>
+            </a>
+            <a href="#" class="flex items-center px-6 py-3 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors mb-1">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                <span class="sidebar-text">采购报表</span>
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-slate-700">
+            <button onclick="toggleSidebar()" class="w-full flex justify-center items-center py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors">
+                <svg id="collapseIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
+            </button>
+        </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 flex flex-col h-screen overflow-hidden bg-gray-50">
+        
+        <!-- 顶部导航栏 -->
+        <header class="h-16 bg-white shadow-sm flex justify-between items-center px-6 shrink-0 z-10">
+            <div class="flex items-center">
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </span>
+                    <input type="text" placeholder="搜索订单号/供应商..." class="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-64 bg-gray-50 focus:bg-white transition-all">
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <button class="relative p-2 text-gray-400 hover:text-blue-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                    <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                </button>
+                
+                <div class="relative group">
+                    <button class="flex items-center space-x-2">
+                        <img src="https://ui-avatars.com/api/?name=Buyer&background=0284c7&color=fff" class="w-8 h-8 rounded-full border-2 border-white shadow-sm">
+                        <span class="text-sm font-medium text-gray-700">采购员</span>
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 内容主体 -->
+        <main class="flex-1 overflow-y-auto p-6">
+            
+            <!-- 指标卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-gray-400 text-xs uppercase font-bold mb-1">本月采购订单</div>
+                            <div class="text-2xl font-bold text-gray-800">1,247</div>
+                            <div class="text-green-500 text-xs mt-1">↑ 15% 较上月</div>
+                        </div>
+                        <div class="p-3 bg-blue-50 rounded-lg text-blue-600">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-gray-400 text-xs uppercase font-bold mb-1">待审批</div>
+                            <div class="text-2xl font-bold text-orange-600">23</div>
+                            <div class="text-gray-500 text-xs mt-1">需尽快处理</div>
+                        </div>
+                        <div class="p-3 bg-orange-50 rounded-lg text-orange-600">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-gray-400 text-xs uppercase font-bold mb-1">收货中</div>
+                            <div class="text-2xl font-bold text-blue-600">156</div>
+                            <div class="text-gray-500 text-xs mt-1">在途订单</div>
+                        </div>
+                        <div class="p-3 bg-blue-50 rounded-lg text-blue-600">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-gray-400 text-xs uppercase font-bold mb-1">延期预警</div>
+                            <div class="text-2xl font-bold text-red-600">8</div>
+                            <div class="text-red-500 text-xs mt-1">超期未到货</div>
+                        </div>
+                        <div class="p-3 bg-red-50 rounded-lg text-red-600">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-gray-400 text-xs uppercase font-bold mb-1">本月采购额</div>
+                            <div class="text-2xl font-bold text-gray-800">¥8.5M</div>
+                            <div class="text-green-500 text-xs mt-1">目标完成85%</div>
+                        </div>
+                        <div class="p-3 bg-green-50 rounded-lg text-green-600">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 筛选区 -->
+            <section class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-6">
+                <div class="flex flex-wrap gap-4 items-end">
+                    <div class="flex-1 min-w-[180px]">
+                        <label class="block text-xs font-medium text-gray-700 mb-1">订单号/供应商</label>
+                        <input type="text" id="searchInput" placeholder="PO单号或供应商名称" class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                    </div>
+                    
+                    <div class="w-40">
+                        <label class="block text-xs font-medium text-gray-700 mb-1">订单状态</label>
+                        <select id="statusFilter" class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="ALL">全部状态</option>
+                            <option value="DRAFT">草稿</option>
+                            <option value="PENDING_APPROVAL">待审批</option>
+                            <option value="APPROVED">已审批</option>
+                            <option value="SENT_TO_SUPPLIER">已发送供应商</option>
+                            <option value="IN_RECEIVING">收货中</option>
+                            <option value="RECEIVED">已收货</option>
+                            <option value="CLOSED">已关闭</option>
+                        </select>
+                    </div>
+
+                    <div class="w-40">
+                        <label class="block text-xs font-medium text-gray-700 mb-1">收货仓库</label>
+                        <select class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option>全部仓库</option>
+                            <option>华南中心仓</option>
+                            <option>华东中心仓</option>
+                            <option>华北中心仓</option>
+                        </select>
+                    </div>
+
+                    <div class="w-44">
+                        <label class="block text-xs font-medium text-gray-700 mb-1">订单日期</label>
+                        <input type="date" class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button onclick="handleFilter()" class="px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                            查询
+                        </button>
+                        <button onclick="resetFilter()" class="px-5 py-2.5 bg-white text-gray-700 border border-gray-200 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors">
+                            重置
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 工具栏 & 表格 -->
+            <section class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col min-h-[500px]">
+                
+                <!-- 工具栏 -->
+                <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                    <div class="flex items-center space-x-2">
+                        <button onclick="openCreateModal()" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            新建订单
+                        </button>
+                        <button class="px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                            导入订单
+                        </button>
+                        <button class="px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            导出
+                        </button>
+                    </div>
+                    <div class="text-xs text-gray-500">
+                        共找到 <span class="font-bold text-gray-800" id="totalCount">0</span> 条订单
+                    </div>
+                </div>
+
+                <!-- 表格 -->
+                <div class="flex-1 overflow-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-gray-50 text-gray-500 text-xs uppercase sticky top-0 z-10">
+                            <tr>
+                                <th class="p-4 w-10"><input type="checkbox" class="rounded border-gray-300"></th>
+                                <th class="p-4 font-semibold">订单编号</th>
+                                <th class="p-4 font-semibold">供应商</th>
+                                <th class="p-4 font-semibold">收货仓库</th>
+                                <th class="p-4 font-semibold">订单金额</th>
+                                <th class="p-4 font-semibold">商品行数</th>
+                                <th class="p-4 font-semibold">订单日期</th>
+                                <th class="p-4 font-semibold">期望到货</th>
+                                <th class="p-4 font-semibold">状态</th>
+                                <th class="p-4 font-semibold">收货进度</th>
+                                <th class="p-4 font-semibold text-right">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="text-sm divide-y divide-gray-100">
+                            <!-- 动态渲染 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 分页 -->
+                <div class="p-4 border-t border-gray-100 flex justify-between items-center bg-white">
+                    <div class="text-xs text-gray-500">显示第 1 到 10 条</div>
+                    <div class="flex items-center space-x-2">
+                        <button class="px-3 py-1 border border-gray-200 rounded text-xs text-gray-500 hover:bg-gray-50">上一页</button>
+                        <button class="px-3 py-1 bg-blue-600 text-white rounded text-xs font-medium">1</button>
+                        <button class="px-3 py-1 border border-gray-200 rounded text-xs text-gray-600 hover:bg-gray-50">2</button>
+                        <button class="px-3 py-1 border border-gray-200 rounded text-xs text-gray-600 hover:bg-gray-50">3</button>
+                        <button class="px-3 py-1 border border-gray-200 rounded text-xs text-gray-600 hover:bg-gray-50">下一页</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 新建/编辑订单弹窗 -->
+    <div id="createModal" class="fixed inset-0 z-50 hidden">
+        <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm" onclick="closeCreateModal()"></div>
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
+                <!-- 弹窗标题 -->
+                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+                    <h2 class="text-lg font-semibold text-gray-900">新建采购订单</h2>
+                    <button onclick="closeCreateModal()" class="text-gray-400 hover:text-gray-500">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                
+                <!-- 弹窗内容 -->
+                <div class="flex-1 overflow-y-auto p-6">
+                    <!-- 基本信息 -->
+                    <div class="mb-6">
+                        <h3 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                            <span class="w-1 h-4 bg-blue-600 mr-2"></span>
+                            基本信息
+                        </h3>
+                        <div class="grid grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700 mb-1">订单编号</label>
+                                <input type="text" value="PO20251228-0001" disabled class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700 mb-1">供应商 <span class="text-red-500">*</span></label>
+                                <select class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <option>请选择供应商</option>
+                                    <option>深圳市百果园实业发展有限公司</option>
+                                    <option>上海盒马网络科技有限公司</option>
+                                    <option>广东佳农食品有限公司</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700 mb-1">收货仓库 <span class="text-red-500">*</span></label>
+                                <select class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <option>请选择仓库</option>
+                                    <option>华南中心仓</option>
+                                    <option>华东中心仓</option>
+                                    <option>华北中心仓</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700 mb-1">订单日期</label>
+                                <input type="date" value="2025-12-28" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700 mb-1">期望到货日期 <span class="text-red-500">*</span></label>
+                                <input type="date" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700 mb-1">付款条件</label>
+                                <select class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+                                    <option>月结30天</option>
+                                    <option>月结60天</option>
+                                    <option>货到付款</option>
+                                    <option>预付30%</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 商品明细 -->
+                    <div class="mb-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-sm font-medium text-gray-700 flex items-center">
+                                <span class="w-1 h-4 bg-blue-600 mr-2"></span>
+                                商品明细
+                            </h3>
+                            <button onclick="addProductLine()" class="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                添加商品
+                            </button>
+                        </div>
+                        <div class="border border-gray-200 rounded-lg overflow-hidden">
+                            <table class="w-full text-sm">
+                                <thead class="bg-gray-50 text-gray-600 text-xs">
+                                    <tr>
+                                        <th class="p-3 text-left w-10">#</th>
+                                        <th class="p-3 text-left">商品编码</th>
+                                        <th class="p-3 text-left">商品名称</th>
+                                        <th class="p-3 text-left">规格</th>
+                                        <th class="p-3 text-left">单位</th>
+                                        <th class="p-3 text-left">采购数量</th>
+                                        <th class="p-3 text-left">采购单价</th>
+                                        <th class="p-3 text-left">税率%</th>
+                                        <th class="p-3 text-left">行金额</th>
+                                        <th class="p-3 text-left">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="productLines" class="divide-y divide-gray-100">
+                                    <tr>
+                                        <td colspan="10" class="p-8 text-center text-gray-400 text-sm">
+                                            <svg class="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+                                            暂无商品，点击"添加商品"开始添加
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 订单汇总 -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="flex justify-end">
+                            <div class="space-y-2 text-sm w-64">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">商品总数量：</span>
+                                    <span class="font-medium">0</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">订单金额（不含税）：</span>
+                                    <span class="font-medium">¥0.00</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">税额：</span>
+                                    <span class="font-medium">¥0.00</span>
+                                </div>
+                                <div class="flex justify-between pt-2 border-t border-gray-200">
+                                    <span class="text-gray-900 font-medium">订单总金额：</span>
+                                    <span class="text-lg font-bold text-blue-600">¥0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 备注 -->
+                    <div class="mt-4">
+                        <label class="block text-xs font-medium text-gray-700 mb-1">备注</label>
+                        <textarea rows="3" placeholder="订单备注信息..." class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                    </div>
+                </div>
+
+                <!-- 弹窗底部 -->
+                <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 bg-gray-50">
+                    <button onclick="closeCreateModal()" class="px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50">取消</button>
+                    <button class="px-4 py-2 bg-white border border-gray-300 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50">保存草稿</button>
+                    <button onclick="submitOrder()" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 shadow-sm">提交审批</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 订单详情抽屉 -->
+    <div id="detailDrawer" class="fixed inset-0 z-50 hidden">
+        <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm opacity-0 transition-opacity" id="drawerBackdrop" onclick="closeDetailDrawer()"></div>
+        <div class="fixed inset-y-0 right-0 z-10 w-full max-w-3xl bg-white shadow-2xl transform translate-x-full transition-transform duration-300" id="drawerPanel">
+            <div class="flex h-full flex-col">
+                <!-- 标题 -->
+                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900">采购订单详情</h2>
+                        <p class="text-xs text-gray-500 mt-0.5" id="detailOrderNo">PO20251228-0001</p>
+                    </div>
+                    <button onclick="closeDetailDrawer()" class="text-gray-400 hover:text-gray-500">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                
+                <!-- 内容 -->
+                <div class="flex-1 overflow-y-auto px-6 py-6" id="detailContent">
+                    <!-- 动态加载 -->
+                </div>
+
+                <!-- 底部操作 -->
+                <div class="border-t border-gray-100 px-6 py-4 flex justify-end gap-3 bg-gray-50">
+                    <button onclick="closeDetailDrawer()" class="px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50">关闭</button>
+                    <button class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700">编辑订单</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed top-4 right-4 z-50 transform transition-all duration-300 translate-y-[-150%] opacity-0">
+        <div class="flex items-center w-full max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow">
+            <div id="toastIcon" class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-lg"></div>
+            <div class="ml-3 text-sm font-normal" id="toastMessage">消息</div>
+        </div>
+    </div>
+
+    <script>
+        // Mock数据
+        const statuses = {
+            DRAFT: { label: '草稿', color: 'bg-gray-100 text-gray-700' },
+            PENDING_APPROVAL: { label: '待审批', color: 'bg-orange-100 text-orange-700' },
+            APPROVED: { label: '已审批', color: 'bg-blue-100 text-blue-700' },
+            SENT_TO_SUPPLIER: { label: '已发送供应商', color: 'bg-purple-100 text-purple-700' },
+            IN_RECEIVING: { label: '收货中', color: 'bg-cyan-100 text-cyan-700' },
+            RECEIVED: { label: '已收货', color: 'bg-green-100 text-green-700' },
+            CLOSED: { label: '已关闭', color: 'bg-slate-100 text-slate-700' }
+        };
+
+        const suppliers = ['深圳市百果园', '上海盒马', '广东佳农', '江苏雨润', '山东寿光'];
+        const warehouses = ['华南中心仓', '华东中心仓', '华北中心仓', '西南区域仓'];
+
+        const orders = Array.from({ length: 30 }, (_, i) => {
+            const id = 10001 + i;
+            const statusKeys = Object.keys(statuses);
+            const status = statusKeys[Math.floor(Math.random() * statusKeys.length)];
+            const receivedPercent = status === 'IN_RECEIVING' ? Math.floor(Math.random() * 90) + 10 : 
+                                   (status === 'RECEIVED' || status === 'CLOSED') ? 100 : 0;
+            
+            return {
+                id: id,
+                po_no: `PO20251228-${String(id).padStart(4, '0')}`,
+                supplier: suppliers[Math.floor(Math.random() * suppliers.length)],
+                warehouse: warehouses[Math.floor(Math.random() * warehouses.length)],
+                total_amount: (Math.random() * 100000 + 5000).toFixed(2),
+                line_count: Math.floor(Math.random() * 20) + 1,
+                order_date: '2025-12-28',
+                expected_delivery_date: `2025-12-${28 + Math.floor(Math.random() * 5)}`,
+                status: status,
+                received_percent: receivedPercent
+            };
+        });
+
+        let state = {
+            orders: orders,
+            filteredOrders: [...orders],
+            selectedIds: new Set()
+        };
+
+        // 渲染表格
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            document.getElementById('totalCount').textContent = state.filteredOrders.length;
+
+            if (state.filteredOrders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="11" class="p-8 text-center text-gray-400">未找到符合条件的订单</td></tr>';
+                return;
+            }
+
+            state.filteredOrders.forEach(order => {
+                const statusInfo = statuses[order.status];
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-blue-50/50 transition-colors';
+                
+                tr.innerHTML = `
+                    <td class="p-4"><input type="checkbox" class="rounded border-gray-300"></td>
+                    <td class="p-4">
+                        <div class="font-mono text-blue-600 font-medium">${order.po_no}</div>
+                    </td>
+                    <td class="p-4 text-gray-900">${order.supplier}</td>
+                    <td class="p-4 text-gray-600">${order.warehouse}</td>
+                    <td class="p-4 font-medium text-gray-900">¥${Number(order.total_amount).toLocaleString()}</td>
+                    <td class="p-4 text-gray-600">${order.line_count}行</td>
+                    <td class="p-4 text-gray-600">${order.order_date}</td>
+                    <td class="p-4 text-gray-600">${order.expected_delivery_date}</td>
+                    <td class="p-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusInfo.color}">
+                            ${statusInfo.label}
+                        </span>
+                    </td>
+                    <td class="p-4">
+                        <div class="flex items-center space-x-2">
+                            <div class="flex-1 bg-gray-200 rounded-full h-2 w-20">
+                                <div class="bg-blue-600 h-2 rounded-full" style="width: ${order.received_percent}%"></div>
+                            </div>
+                            <span class="text-xs text-gray-600 font-medium">${order.received_percent}%</span>
+                        </div>
+                    </td>
+                    <td class="p-4 text-right">
+                        <button onclick="viewDetail(${order.id})" class="text-blue-600 hover:text-blue-900 text-sm font-medium mr-3">详情</button>
+                        ${order.status === 'DRAFT' ? '<button class="text-green-600 hover:text-green-900 text-sm font-medium mr-2">编辑</button>' : ''}
+                        ${order.status === 'PENDING_APPROVAL' ? '<button onclick="approveOrder(${order.id})" class="text-green-600 hover:text-green-900 text-sm font-medium">审批</button>' : ''}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 筛选
+        window.handleFilter = () => {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const status = document.getElementById('statusFilter').value;
+
+            state.filteredOrders = state.orders.filter(order => {
+                const matchSearch = order.po_no.toLowerCase().includes(search) || order.supplier.toLowerCase().includes(search);
+                const matchStatus = status === 'ALL' || order.status === status;
+                return matchSearch && matchStatus;
+            });
+
+            renderTable();
+            showToast('查询完成', 'success');
+        };
+
+        window.resetFilter = () => {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = 'ALL';
+            state.filteredOrders = [...state.orders];
+            renderTable();
+        };
+
+        // 查看详情
+        window.viewDetail = (id) => {
+            const order = state.orders.find(o => o.id === id);
+            if (!order) return;
+
+            document.getElementById('detailOrderNo').textContent = order.po_no;
+            const content = document.getElementById('detailContent');
+            const statusInfo = statuses[order.status];
+            
+            // Mock商品明细数据
+            const mockLines = [
+                { lineNo: 1, productCode: 'P001', productName: '新鲜猕猴桃', spec: '500g/盒', unit: '盒', qtyOrdered: 200, qtyReceived: 150, unitPrice: 28.50, taxRate: 13 },
+                { lineNo: 2, productCode: 'P006', productName: '车厘子', spec: '500g/盒', unit: '盒', qtyOrdered: 100, qtyReceived: 100, unitPrice: 198.00, taxRate: 13 },
+                { lineNo: 3, productCode: 'P003', productName: '有机苹果', spec: '5kg/箱', unit: '箱', qtyOrdered: 50, qtyReceived: 0, unitPrice: 68.00, taxRate: 13 }
+            ];
+            
+            content.innerHTML = `
+                <div class="space-y-6">
+                    <!-- 订单状态与进度 -->
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 mb-3">订单状态</h3>
+                        <div class="flex items-center p-4 border border-gray-100 rounded-lg bg-gray-50">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${statusInfo.color}">${statusInfo.label}</span>
+                            <div class="ml-4 flex-1">
+                                <div class="text-xs text-gray-500">收货进度</div>
+                                <div class="flex items-center mt-1">
+                                    <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                        <div class="bg-blue-600 h-2 rounded-full" style="width: ${order.received_percent}%"></div>
+                                    </div>
+                                    <span class="ml-2 text-sm font-medium">${order.received_percent}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 基本信息 -->
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 mb-3">基本信息</h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <div class="text-xs text-gray-400">订单编号</div>
+                                <div class="text-sm font-mono font-medium text-blue-600 mt-1">${order.po_no}</div>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <div class="text-xs text-gray-400">供应商</div>
+                                <div class="text-sm font-medium mt-1">${order.supplier}</div>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <div class="text-xs text-gray-400">收货仓库</div>
+                                <div class="text-sm font-medium mt-1">${order.warehouse}</div>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <div class="text-xs text-gray-400">订单日期</div>
+                                <div class="text-sm font-medium mt-1">${order.order_date}</div>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <div class="text-xs text-gray-400">期望到货日期</div>
+                                <div class="text-sm font-medium mt-1">${order.expected_delivery_date}</div>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <div class="text-xs text-gray-400">付款条件</div>
+                                <div class="text-sm font-medium mt-1">月结30天</div>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <div class="text-xs text-gray-400">创建人</div>
+                                <div class="text-sm font-medium mt-1">张三 (采购员)</div>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <div class="text-xs text-gray-400">创建时间</div>
+                                <div class="text-sm font-medium mt-1">${order.order_date} 10:30:25</div>
+                            </div>
+                            ${order.status !== 'DRAFT' ? `
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <div class="text-xs text-gray-400">审批人</div>
+                                <div class="text-sm font-medium mt-1">李四 (采购主管)</div>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <div class="text-xs text-gray-400">审批时间</div>
+                                <div class="text-sm font-medium mt-1">${order.order_date} 14:20:15</div>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <!-- 金额信息 -->
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 mb-3">金额信息</h3>
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-100">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <div class="text-xs text-gray-500">订单金额（不含税）</div>
+                                    <div class="text-base font-semibold text-gray-800 mt-1">¥${(Number(order.total_amount) / 1.13).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-500">税额(13%)</div>
+                                    <div class="text-base font-semibold text-gray-800 mt-1">¥${(Number(order.total_amount) - Number(order.total_amount) / 1.13).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                                </div>
+                                <div class="col-span-2 pt-3 border-t border-blue-200">
+                                    <div class="text-xs text-gray-500">订单总金额（含税）</div>
+                                    <div class="text-2xl font-bold text-blue-600 mt-1">¥${Number(order.total_amount).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 商品明细 -->
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-sm font-medium text-gray-500">商品明细</h3>
+                            <span class="text-xs text-gray-400">共 ${mockLines.length} 行商品</span>
+                        </div>
+                        <div class="border border-gray-200 rounded-lg overflow-hidden">
+                            <table class="w-full text-sm">
+                                <thead class="bg-gray-50 text-xs text-gray-600">
+                                    <tr>
+                                        <th class="p-3 text-left">行号</th>
+                                        <th class="p-3 text-left">商品编码</th>
+                                        <th class="p-3 text-left">商品名称</th>
+                                        <th class="p-3 text-left">规格</th>
+                                        <th class="p-3 text-right">订购数量</th>
+                                        <th class="p-3 text-right">已收货</th>
+                                        <th class="p-3 text-right">采购单价</th>
+                                        <th class="p-3 text-right">税率</th>
+                                        <th class="p-3 text-right">行金额</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    ${mockLines.map(line => {
+                                        const lineAmount = line.qtyOrdered * line.unitPrice * (1 + line.taxRate / 100);
+                                        const receivedPercent = line.qtyOrdered > 0 ? Math.round((line.qtyReceived / line.qtyOrdered) * 100) : 0;
+                                        return `
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="p-3 text-gray-600">${line.lineNo}</td>
+                                            <td class="p-3 font-mono text-xs text-gray-600">${line.productCode}</td>
+                                            <td class="p-3 font-medium">${line.productName}</td>
+                                            <td class="p-3 text-gray-500 text-xs">${line.spec}</td>
+                                            <td class="p-3 text-right">${line.qtyOrdered} ${line.unit}</td>
+                                            <td class="p-3 text-right">
+                                                <span class="${receivedPercent === 100 ? 'text-green-600' : receivedPercent > 0 ? 'text-orange-600' : 'text-gray-500'} font-medium">
+                                                    ${line.qtyReceived} ${line.unit}
+                                                </span>
+                                                <span class="text-xs text-gray-400 ml-1">(${receivedPercent}%)</span>
+                                            </td>
+                                            <td class="p-3 text-right text-gray-700">¥${line.unitPrice.toFixed(2)}</td>
+                                            <td class="p-3 text-right text-gray-600 text-xs">${line.taxRate}%</td>
+                                            <td class="p-3 text-right font-medium">¥${lineAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                        </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                                <tfoot class="bg-gray-50 border-t-2 border-gray-200">
+                                    <tr>
+                                        <td colspan="4" class="p-3 text-right font-medium text-gray-700">合计：</td>
+                                        <td class="p-3 text-right font-bold text-gray-900">${mockLines.reduce((sum, l) => sum + l.qtyOrdered, 0)}</td>
+                                        <td class="p-3 text-right font-bold text-gray-900">${mockLines.reduce((sum, l) => sum + l.qtyReceived, 0)}</td>
+                                        <td colspan="2"></td>
+                                        <td class="p-3 text-right font-bold text-blue-600">¥${order.total_amount}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                    ${order.status !== 'DRAFT' && order.status !== 'CANCELLED' ? `
+                    <!-- 收货记录 -->
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-sm font-medium text-gray-500">收货记录</h3>
+                            <span class="text-xs text-gray-400">共 ${order.received_percent > 0 ? '2' : '0'} 次收货</span>
+                        </div>
+                        ${order.received_percent > 0 ? `
+                        <div class="space-y-2">
+                            <div class="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-sm transition-shadow">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-mono text-blue-600">GR20251228-001</span>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">已过账</span>
+                                </div>
+                                <div class="grid grid-cols-4 gap-2 text-xs">
+                                    <div>
+                                        <span class="text-gray-400">收货日期：</span>
+                                        <span class="text-gray-700">${order.expected_delivery_date}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-400">收货人：</span>
+                                        <span class="text-gray-700">王五</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-400">收货数量：</span>
+                                        <span class="text-gray-700">200件</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-400">质检结果：</span>
+                                        <span class="text-green-600 font-medium">合格</span>
+                                    </div>
+                                </div>
+                            </div>
+                            ${order.received_percent >= 50 ? `
+                            <div class="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-sm transition-shadow">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-mono text-blue-600">GR20251229-002</span>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">已过账</span>
+                                </div>
+                                <div class="grid grid-cols-4 gap-2 text-xs">
+                                    <div>
+                                        <span class="text-gray-400">收货日期：</span>
+                                        <span class="text-gray-700">2025-12-29</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-400">收货人：</span>
+                                        <span class="text-gray-700">赵六</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-400">收货数量：</span>
+                                        <span class="text-gray-700">100件</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-400">质检结果：</span>
+                                        <span class="text-green-600 font-medium">合格</span>
+                                    </div>
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+                        ` : '<div class="text-center py-6 text-gray-400 text-sm">暂无收货记录</div>'}
+                    </div>
+                    ` : ''}
+
+                    <!-- 操作日志 -->
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 mb-3">操作日志</h3>
+                        <div class="space-y-2">
+                            <div class="flex items-start space-x-3 text-xs">
+                                <div class="w-2 h-2 bg-blue-500 rounded-full mt-1.5"></div>
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-medium text-gray-700">订单创建</span>
+                                        <span class="text-gray-400">${order.order_date} 10:30:25</span>
+                                    </div>
+                                    <div class="text-gray-500 mt-0.5">张三 创建了采购订单 ${order.po_no}</div>
+                                </div>
+                            </div>
+                            ${order.status !== 'DRAFT' ? `
+                            <div class="flex items-start space-x-3 text-xs">
+                                <div class="w-2 h-2 bg-green-500 rounded-full mt-1.5"></div>
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-medium text-gray-700">审批通过</span>
+                                        <span class="text-gray-400">${order.order_date} 14:20:15</span>
+                                    </div>
+                                    <div class="text-gray-500 mt-0.5">李四 审批通过订单，订单金额 ¥${Number(order.total_amount).toLocaleString()}</div>
+                                </div>
+                            </div>
+                            ` : ''}
+                            ${order.status === 'SENT_TO_SUPPLIER' || order.status === 'IN_RECEIVING' || order.status === 'RECEIVED' || order.status === 'CLOSED' ? `
+                            <div class="flex items-start space-x-3 text-xs">
+                                <div class="w-2 h-2 bg-purple-500 rounded-full mt-1.5"></div>
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-medium text-gray-700">发送供应商</span>
+                                        <span class="text-gray-400">${order.order_date} 14:25:30</span>
+                                    </div>
+                                    <div class="text-gray-500 mt-0.5">系统自动推送订单至SRM系统</div>
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <!-- 备注信息 -->
+                    ${Math.random() > 0.5 ? `
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 mb-3">备注信息</h3>
+                        <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-gray-700">
+                            请供应商优先发货车厘子和猕猴桃，苹果可稍后发货。注意保持冷链运输温度在2-8℃。
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+
+            const drawer = document.getElementById('detailDrawer');
+            const panel = document.getElementById('drawerPanel');
+            const backdrop = document.getElementById('drawerBackdrop');
+            
+            drawer.classList.remove('hidden');
+            setTimeout(() => {
+                backdrop.classList.remove('opacity-0');
+                panel.classList.remove('translate-x-full');
+            }, 10);
+        };
+
+        window.closeDetailDrawer = () => {
+            const panel = document.getElementById('drawerPanel');
+            const backdrop = document.getElementById('drawerBackdrop');
+            backdrop.classList.add('opacity-0');
+            panel.classList.add('translate-x-full');
+            setTimeout(() => {
+                document.getElementById('detailDrawer').classList.add('hidden');
+            }, 300);
+        };
+
+        // 新建订单
+        window.openCreateModal = () => {
+            document.getElementById('createModal').classList.remove('hidden');
+        };
+
+        window.closeCreateModal = () => {
+            document.getElementById('createModal').classList.add('hidden');
+        };
+
+        // Mock商品数据
+        const mockProducts = [
+            { code: 'P001', name: '新鲜猕猴桃', spec: '500g/盒', unit: '盒', price: 28.50 },
+            { code: 'P002', name: '进口牛油果', spec: '250g×6个', unit: '箱', price: 158.00 },
+            { code: 'P003', name: '有机苹果', spec: '5kg/箱', unit: '箱', price: 68.00 },
+            { code: 'P004', name: '哈密瓜', spec: '2.5kg/个', unit: '个', price: 32.00 },
+            { code: 'P005', name: '红心火龙果', spec: '1kg×8个', unit: '箱', price: 88.00 },
+            { code: 'P006', name: '车厘子', spec: '500g/盒', unit: '盒', price: 198.00 },
+            { code: 'P007', name: '草莓', spec: '250g/盒', unit: '盒', price: 38.00 },
+            { code: 'P008', name: '榴莲', spec: '3-4kg/个', unit: '个', price: 128.00 }
+        ];
+
+        let productLineCounter = 0;
+        let orderLines = [];
+
+        window.addProductLine = () => {
+            productLineCounter++;
+            const randomProduct = mockProducts[Math.floor(Math.random() * mockProducts.length)];
+            
+            const newLine = {
+                lineNo: productLineCounter,
+                productCode: randomProduct.code,
+                productName: randomProduct.name,
+                spec: randomProduct.spec,
+                unit: randomProduct.unit,
+                quantity: 100,
+                unitPrice: randomProduct.price,
+                taxRate: 13.00
+            };
+            
+            orderLines.push(newLine);
+            renderProductLines();
+            calculateOrderTotal();
+            showToast('商品已添加', 'success');
+        };
+
+        function renderProductLines() {
+            const tbody = document.getElementById('productLines');
+            
+            if (orderLines.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="10" class="p-8 text-center text-gray-400 text-sm">
+                            <svg class="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+                            暂无商品，点击"添加商品"开始添加
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = '';
+            orderLines.forEach((line, index) => {
+                const lineAmount = (line.quantity * line.unitPrice * (1 + line.taxRate / 100)).toFixed(2);
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-50';
+                tr.innerHTML = `
+                    <td class="p-3 text-gray-600">${line.lineNo}</td>
+                    <td class="p-3">
+                        <input type="text" value="${line.productCode}" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" disabled>
+                    </td>
+                    <td class="p-3">
+                        <input type="text" value="${line.productName}" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" disabled>
+                    </td>
+                    <td class="p-3 text-gray-600 text-xs">${line.spec}</td>
+                    <td class="p-3 text-gray-600 text-xs">${line.unit}</td>
+                    <td class="p-3">
+                        <input type="number" value="${line.quantity}" 
+                            onchange="updateLineQuantity(${index}, this.value)"
+                            class="w-20 px-2 py-1 border border-gray-200 rounded text-sm text-right">
+                    </td>
+                    <td class="p-3">
+                        <input type="number" value="${line.unitPrice}" 
+                            onchange="updateLinePrice(${index}, this.value)"
+                            class="w-24 px-2 py-1 border border-gray-200 rounded text-sm text-right" step="0.01">
+                    </td>
+                    <td class="p-3">
+                        <input type="number" value="${line.taxRate}" 
+                            onchange="updateLineTaxRate(${index}, this.value)"
+                            class="w-16 px-2 py-1 border border-gray-200 rounded text-sm text-right" step="0.01">
+                    </td>
+                    <td class="p-3 font-medium text-gray-900">¥${Number(lineAmount).toLocaleString()}</td>
+                    <td class="p-3">
+                        <button onclick="deleteLine(${index})" class="text-red-500 hover:text-red-700 text-xs">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        window.updateLineQuantity = (index, value) => {
+            orderLines[index].quantity = parseFloat(value) || 0;
+            calculateOrderTotal();
+        };
+
+        window.updateLinePrice = (index, value) => {
+            orderLines[index].unitPrice = parseFloat(value) || 0;
+            renderProductLines();
+            calculateOrderTotal();
+        };
+
+        window.updateLineTaxRate = (index, value) => {
+            orderLines[index].taxRate = parseFloat(value) || 0;
+            renderProductLines();
+            calculateOrderTotal();
+        };
+
+        window.deleteLine = (index) => {
+            if (confirm('确认删除该商品行？')) {
+                orderLines.splice(index, 1);
+                renderProductLines();
+                calculateOrderTotal();
+                showToast('商品已删除', 'success');
+            }
+        };
+
+        function calculateOrderTotal() {
+            let totalQty = 0;
+            let totalAmountExTax = 0;
+            let totalTax = 0;
+
+            orderLines.forEach(line => {
+                totalQty += line.quantity;
+                const amountExTax = line.quantity * line.unitPrice;
+                const tax = amountExTax * (line.taxRate / 100);
+                totalAmountExTax += amountExTax;
+                totalTax += tax;
+            });
+
+            const totalAmount = totalAmountExTax + totalTax;
+
+            // 更新汇总显示
+            const summaryDiv = document.querySelector('.bg-gray-50.p-4.rounded-lg .space-y-2');
+            if (summaryDiv) {
+                summaryDiv.innerHTML = `
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">商品总数量：</span>
+                        <span class="font-medium">${totalQty.toLocaleString()}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">订单金额（不含税）：</span>
+                        <span class="font-medium">¥${totalAmountExTax.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">税额：</span>
+                        <span class="font-medium">¥${totalTax.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                    </div>
+                    <div class="flex justify-between pt-2 border-t border-gray-200">
+                        <span class="text-gray-900 font-medium">订单总金额：</span>
+                        <span class="text-lg font-bold text-blue-600">¥${totalAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                    </div>
+                `;
+            }
+        }
+
+        window.submitOrder = () => {
+            showToast('订单提交成功！', 'success');
+            setTimeout(() => closeCreateModal(), 1000);
+        };
+
+        // 审批
+        window.approveOrder = (id) => {
+            if (confirm('确认审批通过该采购订单？')) {
+                const order = state.orders.find(o => o.id === id);
+                order.status = 'APPROVED';
+                renderTable();
+                showToast('审批成功！', 'success');
+            }
+        };
+
+        // Toast
+        window.showToast = (msg, type = 'success') => {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toastIcon');
+            const message = document.getElementById('toastMessage');
+            
+            message.textContent = msg;
+            
+            if (type === 'success') {
+                icon.className = 'inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg';
+                icon.innerHTML = '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/></svg>';
+            } else {
+                icon.className = 'inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-blue-500 bg-blue-100 rounded-lg';
+                icon.innerHTML = '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM10 15a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm1-4a1 1 0 0 1-2 0V6a1 1 0 0 1 2 0v5Z"/></svg>';
+            }
+            
+            toast.classList.remove('translate-y-[-150%]', 'opacity-0');
+            setTimeout(() => toast.classList.add('translate-y-[-150%]', 'opacity-0'), 3000);
+        };
+
+        window.toggleSidebar = () => {
+            const sb = document.getElementById('sidebar');
+            const texts = document.querySelectorAll('.sidebar-text');
+            sb.classList.toggle('w-64');
+            sb.classList.toggle('w-20');
+            texts.forEach(t => t.classList.toggle('hidden'));
+        };
+
+        // Esc关闭
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeDetailDrawer();
+                closeCreateModal();
+            }
+        });
+
+        // 初始化
+        renderTable();
+    </script>
+</body>
+</html>
